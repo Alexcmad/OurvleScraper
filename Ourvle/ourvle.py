@@ -180,7 +180,20 @@ class Course:
 
         news_list = []
         posts = news_block.find_all(class_="post")
+        for post in posts:
+            date = post.find(class_="date").text
+            author = post.find(class_="name")
+            topic = post.find(class_='info').text
+            link = post.find('a')['href']
 
+            data = {
+                "date": date,
+                "author": author,
+                "topic": topic,
+                "link": link
+            }
+            news_list.append(data)
+        return news_list
 
     def __str__(self):
         return f"{self.__info.text} {[t['name'] for t in self.teachers]}"
@@ -211,5 +224,3 @@ class News:
 
     def __repr__(self):
         return self.topic
-
-
