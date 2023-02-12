@@ -1,10 +1,10 @@
 # OurvleScraper
 Interface with OurVle with python
 # Features:
-## Without Login
+### Without Login
 - View and read news
 - Get help information
-## With Login:
+### With Login:
 - View all your courses
 - Get detailed information about your courses, including the lecturers and resources
 
