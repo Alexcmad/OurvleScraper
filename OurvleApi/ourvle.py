@@ -37,10 +37,13 @@ def login(username:str, password:str):
 class Client:
     def __init__(self, soup: BeautifulSoup, cookies):
         self.__front_page = soup
+        try:
+            self.user = self.__front_page.find(class_="profilepic")['alt']
+        except TypeError:
+            raise TypeError('Login Failed. Check your Details.')
         self.__cookies = cookies
         self.course_list = self.__get_course_list()
-        self.__user = self.__front_page.find(class_="profilepic")['alt']
-        print(self.__user)
+        print(self.user)
 
     def __get_course_list(self):
         course_list = []
@@ -182,7 +185,7 @@ class Course:
         posts = news_block.find_all(class_="post")
         for post in posts:
             date = post.find(class_="date").text
-            author = post.find(class_="name")
+            author = post.find(class_="name").text
             topic = post.find(class_='info').text
             link = post.find('a')['href']
 
