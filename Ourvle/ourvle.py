@@ -1,9 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 
-user = "620151891"
-passw = "82M%1P7d"
-
 
 def news():
     news_link = "https://ourvle.mona.uwi.edu/mod/forum/view.php?f=13"
@@ -32,31 +29,47 @@ def login(username, password):
     session = requests.post(login_page, data=payload)
     cookies = session.cookies
     soup = BeautifulSoup(session.content, "html.parser")
+    if session.history:
+        cookies = session.history[0].cookies
     return Client(soup, cookies)
 
 
 class Client:
-    def __init__(self, soup, cookies):
+    def __init__(self, soup: BeautifulSoup, cookies):
         self.__front_page = soup
         self.__cookies = cookies
         self.course_list = self.__get_course_list()
+        self.__user = self.__front_page.find(class_="profilepic")['alt']
+        print(self.__user)
 
     def __get_course_list(self):
         course_list = []
         course_container = self.__front_page.find(class_="courses frontpage-course-list-enrolled")
         courses = course_container.find_all(class_="coursebox")
         for course in courses:
-            course_list.append(Course(course))
+            course_list.append(Course(course, self.__cookies))
         return course_list
+
+    def test(self):
+        with requests.Session() as session:
+            session.cookies = self.__cookies
+            page = session.get("https://ourvle.mona.uwi.edu/course/view.php?id=21087",
+                               cookies=self.__cookies)
+            print(page.text)
 
 
 class Course:
-    def __init__(self, soup: BeautifulSoup):
+    def __init__(self, soup: BeautifulSoup, cookies):
         self.__info = soup.find(class_="coursename")
         self.link = self.__info.find('a')['href']
         self.__info_text = self.__info.text.split('|')
         self.code = self.__info_text[0].strip()
         self.name = self.__info_text[1]
+        self.__cookies = cookies
+        self.__page_soup = None
+        self.__all_content = None
+        self.__topics = None
+        self.__resources = None
 
         self.__content = soup.find(class_="content")
         self.teachers = []
@@ -65,6 +78,45 @@ class Course:
                     "name": teacher.find('a').text,
                     "profile_link": teacher.find('a')['href']}
             self.teachers.append(data)
+
+
+    def resources(self):
+        if not self.__resources:
+            page = requests.get(self.link, cookies=self.__cookies)
+            if not self.__page_soup:
+                self.__page_soup = BeautifulSoup(page.content, "html.parser")
+                self.__all_content = self.__page_soup.find(class_="course-content")
+                if self.__all_content:
+                    self.__topics = self.__all_content.find_all(class_="content")
+                else:
+                    return "SUMN WRONG"
+            resource_list = []
+            for topic in self.__topics:
+                topicName = topic.find(class_="sectionname")
+                if not topicName:
+                    continue
+                topicName = topicName.text
+                topic_resources = topic.find_all(class_='modtype_resource')
+                d1 = {"section_name": topicName}
+                res = []
+                for TR in topic_resources:
+                    link = TR.find('a')['href']
+                    res_name = TR.find(class_="instancename").text.strip()
+                    if TR.find(class_="resourcelinkdetails"):
+                        res_details = TR.find(class_="resourcelinkdetails").text.strip()
+                    else:
+                        res_details = "N/A"
+                    data = {"name": res_name,
+                            "details": res_details,
+                            "link": link}
+                    res.append(data)
+                d1['resources'] = res
+                resource_list.append(d1)
+
+            return resource_list
+
+        else:
+            return self.__resources()
 
     def __str__(self):
         return f"{self.__info.text} {[t['name'] for t in self.teachers]}"
@@ -97,4 +149,4 @@ class News:
         return self.topic
 
 
-print(news()[1])
+
