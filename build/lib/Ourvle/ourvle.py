@@ -193,7 +193,6 @@ class Course:
                 "link": link
             }
             news_list.append(data)
-        self.__news = news_list
         return news_list
 
     def __str__(self):
