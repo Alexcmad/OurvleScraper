@@ -20,7 +20,7 @@ def help():
     print(help_block.find(class_="content").text)
 
 
-def login(username, password):
+def login(username:str, password:str):
     login_page = "https://ourvle.mona.uwi.edu/login/index.php?authldap_skipntlmsso=1"
     payload = {
         "username": username,
@@ -50,7 +50,7 @@ class Client:
             course_list.append(Course(course, self.__cookies))
         return course_list
 
-    def test(self):
+    def __test(self):
         with requests.Session() as session:
             session.cookies = self.__cookies
             page = session.get("https://ourvle.mona.uwi.edu/course/view.php?id=21087",
