@@ -70,7 +70,9 @@ class Course:
         self.__all_content = None
         self.__topics = None
         self.__resources = None
-
+        self.__links = None
+        self.__blocks = None
+        self.__news = None
         self.__content = soup.find(class_="content")
         self.teachers = []
         for teacher in self.__content.find_all("li"):
@@ -79,17 +81,13 @@ class Course:
                     "profile_link": teacher.find('a')['href']}
             self.teachers.append(data)
 
-
     def resources(self):
         if not self.__resources:
-            page = requests.get(self.link, cookies=self.__cookies)
             if not self.__page_soup:
+                page = requests.get(self.link, cookies=self.__cookies)
                 self.__page_soup = BeautifulSoup(page.content, "html.parser")
                 self.__all_content = self.__page_soup.find(class_="course-content")
-                if self.__all_content:
-                    self.__topics = self.__all_content.find_all(class_="content")
-                else:
-                    return "SUMN WRONG"
+                self.__topics = self.__all_content.find_all(class_="content")
             resource_list = []
             for topic in self.__topics:
                 topicName = topic.find(class_="sectionname")
@@ -112,11 +110,77 @@ class Course:
                     res.append(data)
                 d1['resources'] = res
                 resource_list.append(d1)
-
+            self.__resources = resource_list
             return resource_list
 
+    def links(self):
+        if not self.__links:
+            if not self.__page_soup:
+                page = requests.get(self.link, cookies=self.__cookies)
+                self.__page_soup = BeautifulSoup(page.content, "html.parser")
+                self.__all_content = self.__page_soup.find(class_="course-content")
+                self.__topics = self.__all_content.find_all(class_="content")
+            link_list = []
+            for topic in self.__topics:
+                topicName = topic.find(class_="sectionname")
+                if not topicName:
+                    continue
+                topicName = topicName.text
+                topic_links = topic.find_all(class_='modtype_url') + topic.find_all(class_='modtype_lti')
+                d1 = {"section_name": topicName}
+                lnk = []
+                for TL in topic_links:
+                    link = TL.find('a')['href']
+                    lnk_name = TL.find(class_="instancename").text.strip()
+                    data = {"name": lnk_name.rstrip(" External Tool"),
+                            "link": link}
+                    lnk.append(data)
+                d1['links'] = lnk
+                link_list.append(d1)
+            self.__links = link_list
+            return link_list
+
         else:
-            return self.__resources()
+            return self.__links
+
+    def blocks(self):
+        if not self.__blocks:
+            if not self.__page_soup:
+                page = requests.get(self.link, cookies=self.__cookies)
+                self.__page_soup = BeautifulSoup(page.content, "html.parser")
+
+            blocks = self.__page_soup.find_all(class_="block_html")
+            block_list = []
+            for block in blocks:
+                title = block.find('h2').text.strip()
+                content = "".join(block.find(class_='content').text.split('\r\n')).strip()
+                data = {
+                    "title": title,
+                    "content": content
+                }
+                block_list.append(data)
+            self.__blocks = block_list
+            return block_list
+        else:
+            return self.__blocks
+
+    def news(self):
+        if self.__news:
+            return self.__news
+
+        if not self.__page_soup:
+            page = requests.get(self.link, cookies=self.__cookies)
+            self.__page_soup = BeautifulSoup(page.content, "html.parser")
+        news_block = self.__page_soup.find(class_="block_news_items")
+        if not news_block.find(class_="post"):
+            title = news_block.find('h2').text.strip()
+            content = news_block.find(class_="content").text.strip()
+            return {"title": title,
+                    "content": content}
+
+        news_list = []
+        posts = news_block.find_all(class_="post")
+
 
     def __str__(self):
         return f"{self.__info.text} {[t['name'] for t in self.teachers]}"
@@ -149,4 +213,5 @@ class News:
         return self.topic
 
 
-
+client = login("620151891", "82M%1P7d")
+print(client.course_list[2].news())
