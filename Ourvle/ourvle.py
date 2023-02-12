@@ -213,5 +213,3 @@ class News:
         return self.topic
 
 
-client = login("620151891", "82M%1P7d")
-print(client.course_list[2].news())
