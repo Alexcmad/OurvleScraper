@@ -1,4 +1,4 @@
-# OurvleScraper
+# OurvleApi
 Unofficial API to interface with OurVle through python
 
 ## Getting Started:
