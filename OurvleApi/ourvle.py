@@ -115,6 +115,8 @@ class Course:
                 resource_list.append(d1)
             self.__resources = resource_list
             return resource_list
+        else:
+            return self.__resources
 
     def links(self):
         if not self.__links:
