@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import threading
 
 
 def news():
@@ -83,6 +84,10 @@ class Course:
                     "name": teacher.find('a').text,
                     "profile_link": teacher.find('a')['href']}
             self.teachers.append(data)
+        self.__res_thread = threading.Thread(target=self.resources, args=())
+        self.__link_thread = threading.Thread(target=self.links, args=())
+        self.__res_thread.start()
+        self.__link_thread.start()
 
     def resources(self):
         if not self.__resources:

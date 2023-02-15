@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: OurvleApi
-Version: 0.0.4
+Version: 0.1.0
 Summary: Unofficial API for Ourvle
 Home-page: https://github.com/Alexcmad/OurvleScraper
 Author: Alexander McIntosh
@@ -12,7 +12,7 @@ Requires-Python: >=3.7
 Description-Content-Type: text/markdown
 License-File: LICENSE
 
-# OurvleScraper
+# OurvleApi
 Unofficial API to interface with OurVle through python
 
 ## Getting Started:
