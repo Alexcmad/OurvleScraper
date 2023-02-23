@@ -207,7 +207,7 @@ class Course:
         return news_list
 
     def __str__(self):
-        return f"{self.__info.text} {[t['name'] for t in self.teachers]}"
+        return f"{self.code}"
 
     def __repr__(self):
         return self.code
