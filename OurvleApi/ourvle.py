@@ -21,17 +21,20 @@ def help():
     print(help_block.find(class_="content").text)
 
 
-def login(username:str, password:str):
+def login(username: str, password: str):
     login_page = "https://ourvle.mona.uwi.edu/login/index.php?authldap_skipntlmsso=1"
+    homepage = "https://ourvle.mona.uwi.edu/"
     payload = {
         "username": username,
         "password": password
     }
     session = requests.post(login_page, data=payload)
     cookies = session.cookies
-    soup = BeautifulSoup(session.content, "html.parser")
+    # soup = BeautifulSoup(session.content, "html.parser")
     if session.history:
         cookies = session.history[0].cookies
+    home_page = requests.get(homepage, cookies=cookies)
+    soup = BeautifulSoup(home_page.content, "html.parser")
     return Client(soup, cookies)
 
 

@@ -1,7 +1,7 @@
 Metadata-Version: 2.1
 Name: OurvleApi
-Version: 0.1.1
-Summary: Unofficial API for Ourvle
+Version: 0.2.0
+Summary: Unofficial module for Ourvle
 Home-page: https://github.com/Alexcmad/OurvleScraper
 Author: Alexander McIntosh
 Author-email: mcintoshalexander80@gmail.com
@@ -18,7 +18,7 @@ Unofficial API to interface with OurVle through python
 ## Getting Started:
 ##### Install package with pip
 ```
-pip install ourvle
+pip install OurvleApi
 ```
 ##### Import the package
 ```
