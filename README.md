@@ -4,7 +4,7 @@ Unofficial API to interface with OurVle through python
 ## Getting Started:
 ##### Install package with pip
 ```
-pip install ourvle
+pip install OurvleApi
 ```
 ##### Import the package
 ```
