@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: OurvleApi
-Version: 0.2.0
+Version: 0.2.5
 Summary: Unofficial module for Ourvle
 Home-page: https://github.com/Alexcmad/OurvleScraper
 Author: Alexander McIntosh
@@ -60,8 +60,11 @@ client = login(username,password)
 ### With Login
 #### Client:
 
+##### Client.session
+- Returns a session object with the necessary cookies to traverse the website
+
 ##### Client.course_list
-- returns a list of Course objects
+- Returns a list of Course objects
 ```
 my_courses = client.course_list
 print(my_courses)

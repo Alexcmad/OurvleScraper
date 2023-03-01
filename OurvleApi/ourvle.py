@@ -46,6 +46,9 @@ class Client:
         except TypeError:
             raise TypeError('Login Failed. Check your Details.')
         self.__cookies = cookies
+        self.session = requests.session()
+        for c in cookies.items():
+            self.session.cookies.set(name=c[0], value=c[1])
         self.course_list = self.__get_course_list()
         print(self.user)
 

@@ -46,8 +46,11 @@ client = login(username,password)
 ### With Login
 #### Client:
 
+##### Client.session
+- Returns a session object with the necessary cookies to traverse the website
+
 ##### Client.course_list
-- returns a list of Course objects
+- Returns a list of Course objects
 ```
 my_courses = client.course_list
 print(my_courses)
