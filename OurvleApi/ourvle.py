@@ -59,7 +59,7 @@ class Client:
         course_container = self.__front_page.find(class_="courses frontpage-course-list-enrolled")
         courses = course_container.find_all(class_="coursebox")
         for course in courses:
-            course_list.append(Course(course, self.__cookies,self))
+            course_list.append(Course(course, self.__cookies, self))
         return course_list
 
     def __test(self):
@@ -68,6 +68,11 @@ class Client:
             page = session.get("https://ourvle.mona.uwi.edu/course/view.php?id=21087",
                                cookies=self.__cookies)
             print(page.text)
+
+    def find_course(self, course_code):
+        for course in self.course_list:
+            if course.code.lower() == course_code.lower():
+                return course
 
 
 class Course:
