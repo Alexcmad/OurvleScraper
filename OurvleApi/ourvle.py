@@ -262,34 +262,30 @@ class Resource:
         self.link = link
         self.__client = client
 
-    def download(self):
-        final_url = get_final_url(self.link, self.__client)
-        file_extension = get_file_extension(final_url)
-        full_file_name = f"{self.name}.{file_extension}"
+    def download(self, filename=None):
+        final_url = self.__get_final_url()
+        file_extension = self.__get_file_extension(final_url)
+        if not filename:
+            full_file_name = f"{self.name}.{file_extension}"
+        else:
+            full_file_name = f"{filename}.{file_extension}"
 
         response = self.__client.session.get(final_url)
-
-        if not os.path.exists("downloads"):
-            os.makedirs("downloads")
-        file_path = os.path.join("downloads", full_file_name)
-
         if response.status_code == 200:
-            with open(file_path, "wb") as f:
+            with open(full_file_name, "wb") as f:
                 f.write(response.content)
         else:
             print(response.status_code)
+
+    def __get_file_extension(self, filename):
+        _, ext = os.path.splitext(filename)
+        return ext
+
+    def __get_final_url(self):
+        return self.__client.session.get(self.link).url
 
     def __repr__(self):
         return self.name
 
     def __str__(self):
         return self.name + " | " + self.details
-
-
-def get_file_extension(filename):
-    _, ext = os.path.splitext(filename)
-    return ext
-
-
-def get_final_url(url, client):
-    return client.session.get(url).url

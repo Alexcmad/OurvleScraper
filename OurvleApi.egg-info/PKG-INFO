@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: OurvleApi
-Version: 0.2.5
+Version: 0.3.1
 Summary: Unofficial module for Ourvle
 Home-page: https://github.com/Alexcmad/OurvleScraper
 Author: Alexander McIntosh
@@ -109,7 +109,7 @@ test_course.teachers
 - returns a list of dictionaries with the course resources organized by topic (or section)
 ```
 test_course.resources()
-  ==> [{'section_name': 'General', 'resources': []}, {'section_name': 'COURSE OUTLINE', 'resources': [{'name': 'Outline File', 'details': '175.8KB PDF document', 'link': 'https://ourvle.mona.uwi....},....]
+  ==> [{'section_name': 'NOTICE', 'resources': [Course Outline File, TEXTBOOK (New Elementary Approach to Japanese)  Units 1-2 File, Textbook Units 1-5 File,...]}...]
 ```
 ##### Course.links()
 - returnsa a list of dictionaries with the course links organized by topic (or section) including links to online classes.
@@ -130,7 +130,32 @@ test_course.blocks()
 test_course.news()
   ==> [{'date': '31 Jan, 21:55', 'author': Fake Name, 'topic': 'ONLINE Tutorial', 'link': 'https://ourvle.mona.uwi.edu/...}]
 ```
-
+### Resource
+##### Resource.name
+- Returns a string with the name of the Resource
+```
+resource.name
+  ==> 'Course Outline File'
+```
+##### Resource.details
+- Returns a string with the Resource details
+```
+resource.details
+  ==> '15KB Word document'
+```
+##### Resource.link
+- Returns a string with the link to the resource
+```
+resource.link
+  ==>'https://ourvle.mona.uwi.edu/mod/resource/view....'
+```
+##### Resource.download(*name)
+- Downloads the resource
+- If no name is passed, uses the resource name
+- File extension should not be included when passing the name
+```
+resource.download("outline")
+ ```
 ### News:
 ##### News.topic
 - Returns the topic of the news post as a string
