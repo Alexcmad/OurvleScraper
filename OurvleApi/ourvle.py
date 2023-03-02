@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import threading
+import mimetypes
+import os
 
 
 def news():
@@ -57,7 +59,7 @@ class Client:
         course_container = self.__front_page.find(class_="courses frontpage-course-list-enrolled")
         courses = course_container.find_all(class_="coursebox")
         for course in courses:
-            course_list.append(Course(course, self.__cookies))
+            course_list.append(Course(course, self.__cookies,self))
         return course_list
 
     def __test(self):
@@ -69,7 +71,8 @@ class Client:
 
 
 class Course:
-    def __init__(self, soup: BeautifulSoup, cookies):
+    def __init__(self, soup: BeautifulSoup, cookies, client):
+        self.__client = client
         self.__info = soup.find(class_="coursename")
         self.link = self.__info.find('a')['href']
         self.__info_text = self.__info.text.split('|')
@@ -118,9 +121,14 @@ class Course:
                         res_details = TR.find(class_="resourcelinkdetails").text.strip()
                     else:
                         res_details = "N/A"
+
+                        """
                     data = {"name": res_name,
                             "details": res_details,
                             "link": link}
+                        """
+
+                    data = Resource(name=res_name, details=res_details, link=link, client=self.__client)
                     res.append(data)
                 d1['resources'] = res
                 resource_list.append(d1)
@@ -241,3 +249,39 @@ class News:
 
     def __repr__(self):
         return self.topic
+
+
+def get_final_url(url, client):
+    return client.session.get(url).url
+
+
+class Resource:
+    def __init__(self, name, details, link, client):
+        self.name = name
+        self.details = details
+        self.link = link
+        self.__client = client
+
+    def download(self):
+        final_url = get_final_url(self.link, self.__client)
+        mime_type, _ = mimetypes.guess_type(final_url)
+        file_extension = mime_type.split('/')[-1]
+        full_file_name = f"{self.name}.{file_extension}"
+
+        response = self.__client.session.get(final_url)
+
+        if not os.path.exists("downloads"):
+            os.makedirs("downloads")
+        file_path = os.path.join("downloads", full_file_name)
+
+        if response.status_code == 200:
+            with open(file_path, "wb") as f:
+                f.write(response.content)
+        else:
+            print(response.status_code)
+
+    def __repr__(self):
+        return self.name
+
+    def __str__(self):
+        return self.name
