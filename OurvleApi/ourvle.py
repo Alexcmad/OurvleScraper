@@ -1,7 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
 import threading
-import mimetypes
 import os
 
 
@@ -256,10 +255,6 @@ class News:
         return self.topic
 
 
-def get_final_url(url, client):
-    return client.session.get(url).url
-
-
 class Resource:
     def __init__(self, name, details, link, client):
         self.name = name
@@ -269,8 +264,7 @@ class Resource:
 
     def download(self):
         final_url = get_final_url(self.link, self.__client)
-        mime_type, _ = mimetypes.guess_type(final_url)
-        file_extension = mime_type.split('/')[-1]
+        file_extension = get_file_extension(final_url)
         full_file_name = f"{self.name}.{file_extension}"
 
         response = self.__client.session.get(final_url)
@@ -289,4 +283,13 @@ class Resource:
         return self.name
 
     def __str__(self):
-        return self.name
+        return self.name + " | " + self.details
+
+
+def get_file_extension(filename):
+    _, ext = os.path.splitext(filename)
+    return ext
+
+
+def get_final_url(url, client):
+    return client.session.get(url).url
