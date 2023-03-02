@@ -1,6 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
 import threading
+import mimetypes
+import os
 
 
 def news():
@@ -60,11 +62,16 @@ class Client:
             course_list.append(Course(course, self.__cookies))
         return course_list
 
+    def find_course_by_code(self, course_code):
+        for course in self.course_list:
+            if course.code.lower() == course_code.lower():
+                return course
+
+
     def __test(self):
         with requests.Session() as session:
             session.cookies = self.__cookies
-            page = session.get("https://ourvle.mona.uwi.edu/course/view.php?id=21087",
-                               cookies=self.__cookies)
+            page = session.get("https://ourvle.mona.uwi.edu/course/view.php?id=21087",cookies=self.__cookies)
             print(page.text)
 
 
@@ -94,6 +101,73 @@ class Course:
         self.__link_thread = threading.Thread(target=self.links, args=())
         self.__res_thread.start()
         self.__link_thread.start()
+
+    # new method
+    def view_documents(self) -> None:
+        resource_sections = self.resources()
+
+        for sec_index, section in enumerate(resource_sections):
+
+            resources = section['resources']
+            
+            print(f"\nSection {sec_index + 1}")
+            
+            for resource in resources:
+                _id = self.get_doc_id(resource["link"])
+            
+                print(f"{_id}. {resource['name']}")
+    
+    def download_document(self, resource_id , client):
+        resources = self.resources()
+
+        for sec_index, section in enumerate(resources):
+            resources = section['resources']   
+
+            for res_index , resource in enumerate(resources):
+                resource_link = resource["link"]
+                _id = self.get_doc_id(resource_link)
+                final_url = self.get_final_url(resource_link ,client)
+
+                if _id == resource_id:
+                    mime_type, _ = mimetypes.guess_type(final_url)
+                    file_extension = mime_type.split('/')[-1]
+                    full_file_name = f"{resource['name']}.{file_extension}"
+      
+                    self.fetch_file(final_url, client,full_file_name)
+                    return 
+
+    def fetch_file(self, url, client,
+        file_name , 
+        headers = {"User-Agent": "Chrome/51.0.2704.103"}):
+
+
+
+        response = client.session.get(url, headers=headers)
+
+
+        if not os.path.exists("downloads"):
+            os.makedirs("downloads")
+        
+        # add the folder name to the file path
+        file_path = os.path.join("downloads", file_name)
+
+        response = client.session.get(url, headers=headers)
+
+        if response.status_code == 200:
+            with open(file_path, "wb") as f:
+                f.write(response.content)
+        else:
+            print(response.status_code)    
+  
+    # new method
+    def get_final_url(self, url , client):
+        return client.session.get(url).url        
+
+    # new method
+    def get_doc_id(self,link):
+        id_index = link.index("id=") + 3
+        return link[id_index : ]
+
 
     def resources(self):
         if not self.__resources:
@@ -153,7 +227,7 @@ class Course:
                     lnk.append(data)
                 d1['links'] = lnk
                 link_list.append(d1)
-            self.__links = link_list
+            self.__links = link_list        
             return link_list
 
         else:
